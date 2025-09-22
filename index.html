@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>RetroFun</title>
+  <meta name="description" content="Strona z różnymi grami. Mam nadzieję że będziesz się dobrze bawił!!!">
+  <meta name="keywords" content="gry, games, zabawa, fun, RetroFun, JavaScript">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    #gameList div {
+      cursor: pointer;
+      padding: 10px;
+      margin: 5px;
+      border: 2px solid black;
+      width: 200px;
+      margin-left: auto;
+      margin-right: auto;
+      background: #eee;
+      transition: 0.2s;
+    }
+    #gameList div:hover {
+      background: #ccc;
+    }
+    canvas {
+      border: 2px solid black;
+      display: block;
+      margin: 20px auto;
+      background: #eee;
+    }
+  </style>
+</head>
+<body>
+  <h1>RetroFun</h1>
+  <div id="gameList">
+    <div onclick="startGame('pong')">Bounce ‘til You Drop</div>
+    <!-- tutaj można dodać kolejne gry -->
+  </div>
+
+  <div id="gameContainer" style="display:none;">
+    <canvas id="pong" width="600" height="400"></canvas>
+  </div>
+
+  <script src="pong.js"></script>
+  <script>
+    function startGame(game) {
+      document.getElementById('gameList').style.display = 'none'; // ukryj listę
+      document.getElementById('gameContainer').style.display = 'block'; // pokaż canvas
+
+      if(game === 'pong') {
+        // tutaj odpali się Twój pong.js – jeśli kod jest w pong.js, to wystarczy że canvas jest widoczny
+        // można też tu zainicjalizować grę jeśli potrzebne
+      }
+    }
+  </script>
+</body>
+</html>
