@@ -20,22 +20,49 @@ let leftScore = 0;
 let rightScore = 0;
 
 // Najwyższe punkty w jednej rundzie
-let leftHighScore = 0;
-let rightHighScore = 0;
-
-// Przy starcie gry odczytujemy zapisane wartości
-leftHighScore = parseInt(localStorage.getItem('leftHighScore')) || 0;
-rightHighScore = parseInt(localStorage.getItem('rightHighScore')) || 0;
+let leftHighScore = parseInt(localStorage.getItem('leftHighScore')) || 0;
+let rightHighScore = parseInt(localStorage.getItem('rightHighScore')) || 0;
 
 // Flagi do mrugania przy nowym high score
 let leftFlash = false;
 let rightFlash = false;
 
-// Sterowanie
+// Sterowanie klawiatura
 const keys = {};
 document.addEventListener("keydown", (e) => { keys[e.key] = true; });
 document.addEventListener("keyup", (e) => { keys[e.key] = false; });
 
+// Sterowanie myszką
+let mouseY = null;
+canvas.addEventListener("mousemove", (e) => {
+  const rect = canvas.getBoundingClientRect();
+  mouseY = e.clientY - rect.top;
+
+  leftPaddleY = mouseY - paddleHeight / 2;
+
+  if (leftPaddleY < 0) leftPaddleY = 0;
+  if (leftPaddleY > canvas.height - paddleHeight) leftPaddleY = canvas.height - paddleHeight;
+});
+
+// Sterowanie dotykiem
+let touchY = null;
+canvas.addEventListener("touchmove", (e) => {
+  const rect = canvas.getBoundingClientRect();
+  touchY = e.touches[0].clientY - rect.top;
+
+  leftPaddleY = touchY - paddleHeight / 2;
+
+  if (leftPaddleY < 0) leftPaddleY = 0;
+  if (leftPaddleY > canvas.height - paddleHeight) leftPaddleY = canvas.height - paddleHeight;
+
+  e.preventDefault();
+});
+
+canvas.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+});
+
+// Funkcje rysowania
 function drawPaddle(xPos, yPos) {
   ctx.fillStyle = "black";
   ctx.fillRect(xPos, yPos, paddleWidth, paddleHeight);
@@ -52,12 +79,10 @@ function drawBall() {
 function drawScore() {
   ctx.font = "20px Arial";
 
-  // Lewa paletka
   if (leftFlash) ctx.fillStyle = "green";
   else ctx.fillStyle = "black";
   ctx.fillText(`Lewo: ${leftScore}  (Naj: ${leftHighScore})`, 20, 30);
 
-  // Prawa paletka
   if (rightFlash) ctx.fillStyle = "green";
   else ctx.fillStyle = "black";
   ctx.fillText(`Prawo: ${rightScore}  (Naj: ${rightHighScore})`, canvas.width - 180, 30);
@@ -66,6 +91,7 @@ function drawScore() {
 function movePaddles() {
   if (keys["w"] && leftPaddleY > 0) leftPaddleY -= paddleSpeed;
   if (keys["s"] && leftPaddleY < canvas.height - paddleHeight) leftPaddleY += paddleSpeed;
+
   if (keys["ArrowUp"] && rightPaddleY > 0) rightPaddleY -= paddleSpeed;
   if (keys["ArrowDown"] && rightPaddleY < canvas.height - paddleHeight) rightPaddleY += paddleSpeed;
 }
@@ -74,30 +100,30 @@ function moveBall() {
   x += dx;
   y += dy;
 
-  // Odbicie od góry/dolu
   if (y + dy > canvas.height - ballRadius || y + dy < ballRadius) {
     dy = -dy;
   }
 
-  // Odbicie od paletek + punkty
   if (x - ballRadius < paddleWidth && y > leftPaddleY && y < leftPaddleY + paddleHeight) {
     dx = -dx;
     leftScore++;
     if (leftScore > leftHighScore) {
       leftHighScore = leftScore;
-      flashLeftScore(); // mruganie przy nowym high score
+      leftFlash = true;
+      setTimeout(() => leftFlash = false, 300);
     }
   }
+
   if (x + ballRadius > canvas.width - paddleWidth && y > rightPaddleY && y < rightPaddleY + paddleHeight) {
     dx = -dx;
     rightScore++;
     if (rightScore > rightHighScore) {
       rightHighScore = rightScore;
-      flashRightScore(); // mruganie przy nowym high score
+      rightFlash = true;
+      setTimeout(() => rightFlash = false, 300);
     }
   }
 
-  // Punkt dla przeciwnika (reset piłki + reset bieżących punktów)
   if (x + ballRadius > canvas.width || x - ballRadius < 0) {
     x = canvas.width / 2;
     y = canvas.height / 2;
@@ -107,17 +133,6 @@ function moveBall() {
     leftScore = 0;
     rightScore = 0;
   }
-}
-
-// Funkcje mrugania przy nowym high score
-function flashLeftScore() {
-  leftFlash = true;
-  setTimeout(() => { leftFlash = false; }, 300); // mruganie 0.3s
-}
-
-function flashRightScore() {
-  rightFlash = true;
-  setTimeout(() => { rightFlash = false; }, 300); // mruganie 0.3s
 }
 
 function draw() {
